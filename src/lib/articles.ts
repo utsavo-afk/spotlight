@@ -5,7 +5,6 @@ interface Article {
   description: string
   author: string
   date: string
-  status?: 'archived' | 'draft' | 'published'
 }
 
 export interface ArticleWithSlug extends Article {
@@ -33,5 +32,5 @@ export async function getAllArticles() {
 
   let articles = await Promise.all(articleFilenames.map(importArticle))
 
-  return articles.filter(article => article.status === 'published').sort((a, z) => +new Date(z.date) - +new Date(a.date))
+  return articles.sort((a, z) => +new Date(z.date) - +new Date(a.date))
 }
