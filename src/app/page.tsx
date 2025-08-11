@@ -13,11 +13,11 @@ import {
 import logoFountane from "@/images/logos/fountane-logo.svg"
 import logoQrusible from "@/images/logos/qrusible-logo.svg"
 import logoGeekyants from "@/images/logos/geekyants-logo.svg"
-import image1 from '@/images/photos/image1.jpg'
-import image2 from '@/images/photos/image2.jpg'
-import image3 from '@/images/photos/image-3.jpg'
-import image4 from '@/images/photos/image4.jpg'
-import image5 from '@/images/photos/image5.jpg'
+import image1 from '@/images/photos/indigo.png'
+import image2 from '@/images/photos/cyan.png'
+import image3 from '@/images/photos/emerald.png'
+import image4 from '@/images/photos/amber.png'
+import image5 from '@/images/photos/rose.png'
 import { type ArticleWithSlug, getAllArticles } from '@/lib/articles'
 import { formatDate } from '@/lib/formatDate'
 
