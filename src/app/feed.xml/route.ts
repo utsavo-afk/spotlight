@@ -44,14 +44,11 @@ export async function GET(req: Request) {
     let title = article.find('h1').first().text()
     let date = article.find('time').first().attr('datetime')
     let content = article.find('[data-mdx-content]').first().html()
-    let status = article.find('status').first().text()
 
-    if (status !== 'published') continue
 
     assert(typeof title === 'string')
     assert(typeof date === 'string')
     assert(typeof content === 'string')
-    assert(typeof status === 'string')
 
     feed.addItem({
       title,
