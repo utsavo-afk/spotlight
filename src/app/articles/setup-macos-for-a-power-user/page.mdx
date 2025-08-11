@@ -1,0 +1,214 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+import macosPower from './setup-macos-power-user.png'
+
+
+
+export const article = {
+  author: 'Utsav Ojha',
+  date: '2025-08-11',
+  title: 'Setting Up macOS for a Power User',
+  description:
+    'When I first bought a macOS laptop, I wanted maximum productivity, with little bloat and minimal distractions. Here’s how I set it up to achieve that.',
+  status: 'published'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+
+# My Mac Power User Setup: Tools and Scripts for Maximum Productivity
+
+After years of tinkering with different configurations and workflows, I've finally settled on a Mac setup that makes me feel like I have superpowers. Whether I'm debugging a gnarly database issue at 2 AM or switching between 15 different projects, my toolkit keeps me productive and (mostly) sane.
+
+Here's everything I've installed to transform my Mac into a development powerhouse.
+
+<Image src={macosPower} alt="" />
+
+The beauty of a well-configured machine is that it just works. No friction, no "let me spend 20 minutes setting this up," just pure focus on the code that matters.
+
+## Essential Applications
+
+My dock is carefully curated with apps that earn their keep every single day. Each one solves a specific problem that used to slow me down.
+
+**Raycast** has completely replaced Spotlight for me. It's not just a launcher—it's a command center. I can manage my clipboard history, convert units, search my browser history, and even control my music without ever leaving the keyboard. The GitHub integration alone saves me countless trips to the browser.
+
+**Comet Browser** by Perplexity has transformed how I research and browse. This isn't just another browser—it's an agentic browsing experience that can understand context and help with complex research tasks. Instead of manually jumping between tabs and trying to synthesize information from multiple sources, Comet can intelligently navigate and extract insights across websites.
+
+**Claude Desktop** and **ChatGPT** might seem redundant, but they serve different purposes in my workflow. Claude excels at code review and technical writing, while ChatGPT is my go-to for brainstorming and creative problem-solving. Having both as native apps means instant access without browser overhead.
+
+**Mac Whisper** has revolutionized how I handle documentation. Instead of typing out meeting notes or code comments, I just speak them. The accuracy is surprisingly good, and it integrates seamlessly with any text field on macOS.
+
+**Ice Menu Bar Management** keeps my menu bar from becoming a cluttered mess. With so many development tools running background processes, menu bar real estate becomes precious. Ice lets me hide the apps I don't need to see constantly while keeping the important ones visible.
+
+**Alt Tab** fixes one of macOS's most frustrating default behaviors. I want to switch between windows, not applications. This simple utility makes window management feel natural again.
+
+**Warp Terminal** has become my daily driver after years of iTerm2 loyalty. The AI integration is genuinely helpful for remembering complex commands, and the modern interface just feels right. The collaborative features are a nice bonus when pair programming.
+
+**Visual Studio Code** remains the king of editors for my workflow. With the right extensions, it handles everything from TypeScript to database queries to documentation writing.
+
+**DBeaver** deserves special mention as my universal database GUI. While my automation scripts launch database-specific tools like pgAdmin4 and MongoDB Compass, DBeaver is where I go when I need to work across multiple database types in a single interface. Whether I'm comparing data between PostgreSQL and MongoDB, or need to quickly examine a SQLite file someone sent me, DBeaver handles it all with a consistent, powerful interface.
+
+## Development Infrastructure
+
+Behind the scenes, Homebrew orchestrates the entire development environment. It's not just a package manager—it's the foundation that everything else builds on.
+
+```bash
+# My essential brew services
+brew services start postgresql@14
+brew services start redis
+brew services start mongodb/brew/mongodb-community
+```
+
+**PostgreSQL** handles most of my relational database needs. Whether I'm prototyping a new feature or analyzing production data, having a local Postgres instance that starts instantly is essential.
+
+**Redis** serves as both a caching layer for development and a message broker for background jobs. The speed difference between hitting Redis and a traditional database is night and day.
+
+**MongoDB** covers the document database use cases that don't fit well in a relational model. Having all three database types available locally means I can choose the right tool for each job without infrastructure overhead.
+
+## Automation Scripts: The Real Magic
+
+The apps and services are just the foundation. The real productivity boost comes from the custom automation scripts that tie everything together. These scripts eliminate the tedious setup and teardown that used to interrupt my flow state.
+
+### Database Service Management
+
+Starting a development session used to involve opening multiple terminal tabs, running various commands, and waiting for services to come online. Now it's a single command:
+
+```bash
+# MongoDB workflow
+start-mongo     # Starts service + launches Compass
+stop-mongo      # Clean shutdown + optional GUI cleanup
+
+# Redis workflow  
+start-redis     # Starts service + launches RedisInsight
+stop-redis      # Clean shutdown + optional GUI cleanup
+
+# PostgreSQL workflow
+start-postgres  # Starts service + launches pgAdmin4
+stop-postgres   # Clean shutdown + optional GUI cleanup
+
+# Universal database access
+open -a DBeaver # When I need to work across multiple DB types
+```
+
+Each script includes health checks to ensure services are actually ready before launching the GUI tools. No more connecting to a database that's still starting up.
+
+The scripts also handle the tedious cleanup process. When I'm done for the day, I can shut down all services cleanly without hunting through Activity Monitor or remembering specific port numbers.
+
+### Script Architecture
+
+The automation follows a consistent pattern that makes maintaining and extending easy:
+
+```bash
+#!/bin/bash
+# Service health check
+if ! brew services list | grep -q "service.*started"; then
+    echo "Starting service..."
+    brew services start service-name
+    
+    # Wait for service to be ready
+    while ! service-health-check; do
+        echo "Waiting for service..."
+        sleep 1
+    done
+fi
+
+# Launch GUI tool
+echo "Opening management interface..."
+open -a "GUI-Application"
+```
+
+This pattern ensures reliability while providing clear feedback about what's happening. No more guessing whether a service actually started or if the GUI tool will be able to connect.
+
+## Directory Structure
+
+Everything lives in a predictable location that makes the scripts easy to find and maintain:
+
+```
+~/.local/scripts/
+├── README.md              # Documentation for future me
+├── start-mongodb.sh       # MongoDB + Compass automation
+├── stop-mongodb.sh        # MongoDB shutdown
+├── start-postgres.sh      # PostgreSQL + pgAdmin4 automation  
+├── stop-postgres.sh       # PostgreSQL shutdown
+├── start-redis.sh         # Redis + RedisInsight automation
+└── stop-redis.sh          # Redis shutdown
+```
+
+The aliases in my `.zshrc` make these scripts available from anywhere:
+
+```bash
+alias start-mongo="~/.local/scripts/start-mongodb.sh"
+alias stop-mongo="~/.local/scripts/stop-mongodb.sh"
+alias start-redis="~/.local/scripts/start-redis.sh"
+alias stop-redis="~/.local/scripts/stop-redis.sh"  
+alias start-postgres="~/.local/scripts/start-postgres.sh"
+alias stop-postgres="~/.local/scripts/stop-postgres.sh"
+```
+
+### System Maintenance
+
+The crown jewel of my automation arsenal is a comprehensive system cleanup script that I've refined over months of careful testing. After watching too many "cleanup" utilities delete important files, I built my own with obsessive safety protections.
+
+```bash
+# The magic command that keeps my Mac running smoothly
+~/.local/scripts/cleanup.sh
+```
+
+This script is paranoid about safety—and that's exactly what you want from something that deletes files. It defaults to dry-run mode, includes comprehensive logging, and has an extensive list of protected patterns that ensure it never touches anything important.
+
+The script handles the tedious maintenance tasks that slow down your machine over time:
+
+```bash
+# What gets cleaned (safely)
+.DS_Store files               # Finder's invisible clutter
+Homebrew download cache       # Old package downloads
+Package manager caches        # npm, pnpm, pip temporary files
+Python bytecode files         # Compiled .pyc files
+Old cleanup logs             # Keeps last 10, removes the rest
+```
+
+What makes this script special is what it **doesn't** touch. The protected patterns list ensures that configuration files, application data, and anything remotely important stays untouched:
+
+```bash
+# Protected patterns - never deleted
+*/System/*                   # macOS system files
+*/Library/Application Support/* # App configurations  
+*/.config/*                  # Development configs
+*/.ssh/*                     # SSH keys and configs
+*/.git/*                     # Git repositories
+*/.vscode/*                  # Editor settings
+*/.local/scripts/*           # These automation scripts
+*/Documents/*                # Your important files
+```
+
+The comprehensive logging means I can always see exactly what was cleaned and how much space was recovered. The dry-run default prevents accidents, and the size reporting helps prioritize which cleanups provide the most benefit.
+
+```bash
+# Example output showing what would be cleaned
+[DRY RUN] Would remove .DS_Store file: /Users/username/Projects/.DS_Store (6.0K)
+[DRY RUN] Would clean npm cache (keeps all your installed packages)
+[DRY RUN] Would remove Python bytecode file: /Users/username/scripts/__pycache__/utils.pyc (2.1K)
+
+Cleanup Summary
+===============
+Files processed: 47
+Total space saved: 1.2G
+```
+
+This level of automated maintenance means my Mac stays fast without me having to think about it. More importantly, I never have to worry about accidentally deleting something important while trying to free up disk space.
+
+## The Compound Effect
+
+None of these tools are revolutionary on their own, but together they create a development environment that feels effortless. The friction between having an idea and testing it has essentially disappeared.
+
+Want to try a new MongoDB aggregation pipeline? `start-mongo` and I'm ready to go in seconds. Need to debug a Redis caching issue? `start-redis` and RedisInsight is already connected to my local instance. Switching between projects that use different databases? The scripts handle all the setup and teardown automatically.
+
+Weekly system maintenance? The cleanup script runs safely in the background, keeping my machine optimized without any manual intervention or risk of data loss.
+
+This setup has evolved over years of daily use, and every tool has earned its place by solving a real problem. The automation scripts, in particular, represent hundreds of small frustrations that I've systematically eliminated.
+
+The best development environment is the one you don't have to think about—it just works, every time, exactly how you expect it to.
